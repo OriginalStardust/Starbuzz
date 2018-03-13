@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -24,23 +25,7 @@ public class DrinkCategoryActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ListView listDrinks = this.getListView();
-
-        try {
-            SQLiteOpenHelper sqLiteOpenHelper = new StarbuzzDatabaseHelper(this);
-            db = sqLiteOpenHelper.getReadableDatabase();
-            cursor = db.query("DRINK", new String[]{"_id", "NAME"}, null,
-                    null, null, null, null);
-            CursorAdapter listAdapter = new SimpleCursorAdapter(this,
-                    android.R.layout.simple_list_item_1,
-                    cursor,
-                    new String[]{"NAME"},
-                    new int[]{android.R.id.text1},
-                    0);
-            listDrinks.setAdapter(listAdapter);
-        } catch (SQLException e) {
-            Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT).show();
-        }
+        new ReadDrinkTask().execute();
     }
 
     @Override
@@ -55,5 +40,43 @@ public class DrinkCategoryActivity extends ListActivity {
         Intent intent = new Intent(this, DrinkActivity.class);
         intent.putExtra(DrinkActivity.EXTRA_DRINKNO, (int)id);
         this.startActivity(intent);
+    }
+
+    private class ReadDrinkTask extends AsyncTask<Void, Void, Boolean> {
+
+        private ListView listDrinks;
+
+        @Override
+        protected void onPreExecute() {
+            listDrinks = DrinkCategoryActivity.this.getListView();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (!success) {
+                Toast.makeText(DrinkCategoryActivity.this, "Database unavailable",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                SQLiteOpenHelper sqLiteOpenHelper = new StarbuzzDatabaseHelper(DrinkCategoryActivity.this);
+                db = sqLiteOpenHelper.getReadableDatabase();
+                cursor = db.query("DRINK", new String[]{"_id", "NAME"},
+                        null, null, null, null, null);
+                CursorAdapter listAdapter = new SimpleCursorAdapter(DrinkCategoryActivity.this,
+                        android.R.layout.simple_list_item_1,
+                        cursor,
+                        new String[]{"NAME"},
+                        new int[]{android.R.id.text1},
+                        0);
+                listDrinks.setAdapter(listAdapter);
+                return true;
+            } catch (SQLException e) {
+                return false;
+            }
+        }
     }
 }
