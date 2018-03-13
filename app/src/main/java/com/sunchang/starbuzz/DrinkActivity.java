@@ -1,13 +1,12 @@
 package com.sunchang.starbuzz;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
@@ -15,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DrinkActivity extends AppCompatActivity {
+public class DrinkActivity extends Activity {
 
     public static final String EXTRA_DRINKNO = "drinkNo";
 
